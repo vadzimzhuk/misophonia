@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>SpookySoundBox 🎃</title>
+  <meta name="description" content="Trick or treat! Pick a mystery candy and get a random (annoying) sound.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎃</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <main id="stage" aria-label="A bowl of mystery candy"></main>
+
+  <header class="hud hud-title">
+    <h1>Spooky<span>Sound</span>Box</h1>
+    <p id="hint">Pick a candy… if you dare 🎃</p>
+  </header>
+
+  <div class="hud hud-actions">
+    <button id="mute" title="Mute / unmute" aria-pressed="false">🔊</button>
+    <button id="refill">🍬 Refill bowl</button>
+  </div>
+
+  <div class="hud hud-count">
+    <strong id="left">13</strong> candies left
+    <span class="keys">· <kbd>Space</kbd> grabs a random one</span>
+  </div>
+
+  <aside class="hud hud-loot">
+    <h2>Your loot</h2>
+    <ol id="history"></ol>
+  </aside>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+  <div id="loading">Summoning candy…</div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
