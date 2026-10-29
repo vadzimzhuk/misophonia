@@ -134,6 +134,37 @@ function loadBuffer(url) {
   return buffers.get(url);
 }
 
+// ---------------------------------------------------------------- one library sound at a time
+
+let currentVoice = null; // { g: GainNode, sources: AudioScheduledSourceNode[] }
+
+/** Quickly fade out and stop the library sound that's playing (if any). */
+export function stopCurrent() {
+  if (!currentVoice) return;
+  const { g, sources } = currentVoice;
+  currentVoice = null;
+  const t = ctx.currentTime;
+  g.gain.cancelScheduledValues(t);
+  g.gain.setValueAtTime(g.gain.value, t);
+  g.gain.linearRampToValueAtTime(0, t + 0.08);
+  for (const src of sources) {
+    try {
+      src.stop(t + 0.1);
+    } catch {
+      // already stopped
+    }
+  }
+  setTimeout(() => g.disconnect(), 300);
+}
+
+/** A fresh output channel for the next library sound; stops the previous one. */
+function newVoice() {
+  stopCurrent();
+  const { ctx: c, out } = audio();
+  currentVoice = { g: gain(c, 1, out), sources: [] };
+  return currentVoice;
+}
+
 /**
  * Sound entry fields for a recorded file: `{ ...fromFile('sounds/x.mp3', volume) }`.
  * `volume` evens out loudness between recordings. Clips longer than 10 s fade out at 10 s.
@@ -142,13 +173,16 @@ function fromFile(url, volume = 1) {
   return {
     url,
     async play() {
+      const voice = newVoice();
       try {
-        const { ctx: c, out } = audio();
+        const { ctx: c } = audio();
         const buffer = await loadBuffer(url);
+        if (voice !== currentVoice) return; // another candy was opened while this one was loading
         const src = c.createBufferSource();
         src.buffer = buffer;
-        const g = gain(c, volume, out);
+        const g = gain(c, volume, voice.g);
         src.connect(g);
+        voice.sources.push(src);
         const t = c.currentTime;
         src.start(t);
         if (buffer.duration > MAX_SECONDS) {
@@ -240,9 +274,10 @@ export function pop() {
 
 // ---------------------------------------------------------------- registry
 
+// Synthesized library sounds play into their own voice too, so the next candy can silence them.
 const wrap = (fn) => () => {
-  const { ctx: c, out } = audio();
-  fn(c, out);
+  const voice = newVoice();
+  fn(audio().ctx, voice.g);
 };
 
 export const SOUNDS = [

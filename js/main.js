@@ -1,6 +1,7 @@
 import { track } from './analytics.js';
 import { Game } from './game.js';
-import { audio, crinkle, pop, setMuted, isMuted } from './sounds.js';
+import { initShare } from './share.js';
+import { audio, crinkle, pop, setMuted, isMuted, stopCurrent } from './sounds.js';
 
 const $ = (id) => document.getElementById(id);
 const stage = $('stage');
@@ -39,7 +40,10 @@ function onPick(index) {
       track('candy_opened', { sound_id: sound.id, sound_name: sound.name, rare: sound.rare ? 1 : 0 });
     },
   });
-  if (ok) crinkle();
+  if (ok) {
+    stopCurrent(); // opening the next candy silences the previous sound
+    crinkle();
+  }
 }
 
 function showToast(sound) {
@@ -152,14 +156,16 @@ function addToLoot(sound) {
   renderLoot();
 }
 
-/** One row per sound opened, ranked by your vote (unrated last, then most recent first). */
-function renderLoot() {
+/** Opened sounds ranked by your vote (unrated last, then most recent first). */
+function rankedLoot() {
   const ratings = loadRatings();
-  const rows = [...loot.values()]
+  return [...loot.values()]
     .map((e) => ({ ...e, rating: ratings[e.sound.id] || 0 }))
     .sort((a, b) => b.rating - a.rating || b.last - a.last);
+}
 
-  history.replaceChildren(...rows.map(({ sound, count, rating }) => {
+function renderLoot() {
+  history.replaceChildren(...rankedLoot().map(({ sound, count, rating }) => {
     const li = document.createElement('li');
     if (sound.rare) li.className = 'rare';
     const name = document.createElement('span');
@@ -179,7 +185,7 @@ function updateHud() {
   left.textContent = n;
   const empty = n === 0;
   refillBtn.classList.toggle('pulse', empty);
-  hint.textContent = empty ? 'The bowl is empty… refill for more tricks!' : 'Pick a candy… if you dare 🎃';
+  hint.textContent = empty ? 'The bowl is empty… refill, or brag about it 📣' : 'Pick a candy… if you dare 🎃';
 }
 
 function refill() {
@@ -199,8 +205,18 @@ muteBtn.addEventListener('click', () => {
   muteBtn.setAttribute('aria-pressed', String(isMuted()));
 });
 
+initShare(() => {
+  const rows = rankedLoot();
+  return { total: rows.reduce((n, r) => n + r.count, 0), worst: rows[0]?.sound };
+});
+
 window.addEventListener('keydown', (e) => {
-  if (!view || e.code !== 'Space' || e.target.closest?.('button')) return;
+  if (!view || e.code !== 'Space' || e.target.closest?.('textarea, input, dialog')) return;
+  // A button reached with the keyboard keeps Space; one that only has focus from a mouse click
+  // (or focus returning from the share dialog) gives it back to "grab a candy".
+  const button = e.target.closest?.('button');
+  if (button?.matches(':focus-visible')) return;
+  button?.blur();
   e.preventDefault();
   if (game.remaining === 0) refill();
   else view.pickRandom();

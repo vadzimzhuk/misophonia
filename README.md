@@ -17,6 +17,7 @@ The 3D scene uses [three.js](https://threejs.org) loaded from a CDN via an impor
 - **Drag** to orbit around the bowl, scroll to zoom
 - **Space** grabs a random candy (or refills an empty bowl)
 - 🍬 **Refill bowl** re-deals new hidden sounds, 🔊 toggles mute
+- 📣 **Share** brags on X, Facebook, LinkedIn or Threads: *"I survived 7 hated sounds but almost gave up on the 🛠️ Neighbor's drill one! Happy Halloween! 🎃"*
 
 If WebGL isn't available, it falls back to a simple 2D candy bowl.
 
@@ -43,10 +44,22 @@ git push -u origin main
 Then go to **Settings → Pages → Build and deployment → Deploy from a branch → `main` / `(root)`**.
 The site will be live at `https://<you>.github.io/SpookySoundBox/`.
 
+## Sharing
+
+The share message counts the candies you opened and names the sound you rated most irritating
+(or the latest one if you haven't voted). X, LinkedIn and Threads get the text pre-filled; Facebook only
+accepts a link, so the text is copied to the clipboard for pasting. On phones, **More…** opens the system share sheet.
+
+Link previews come from the Open Graph tags in `index.html` and `og-image.jpg`. They use the absolute URL
+`https://vadzimzhuk.github.io/misophonia/`, so update them if the site moves. After changing them, refresh the cached
+preview with the [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/) and the
+[LinkedIn Post Inspector](https://www.linkedin.com/post-inspector/).
+
 ## Analytics
 
 Firebase Analytics (`js/analytics.js`) counts visits automatically (`page_view`, `session_start`) and logs a
-`candy_opened` event with `sound_id`, `sound_name` and `rare` for every unwrapped candy.
+`candy_opened` event with `sound_id`, `sound_name` and `rare` for every unwrapped candy, and a `share` event
+(`method` = x / facebook / linkedin / threads / copy / native) for every share button press.
 The toast that pops up also has a 5-star "how irritating was that?" rating; each vote logs a `sound_rated`
 event with `sound_id`, `sound_name` and `rating` (1–5), and is remembered in `localStorage` for that browser.
 It's off on `localhost` so testing doesn't skew the numbers; open `http://localhost:8000/?analytics` to test it.
@@ -60,6 +73,8 @@ If the SDK is blocked (ad blockers, offline), the app keeps working without it.
 | `style.css` | Halloween theme, HUD, toast and fallback styles |
 | `js/main.js` | Wires up the game, the view and the HUD |
 | `js/analytics.js` | Firebase Analytics setup and `track()` helper |
+| `js/share.js` | Share dialog, message wording and social share links |
+| `og-image.jpg` | 1200×630 link-preview image |
 | `js/game.js` | Deals a hidden sound to each candy and tracks what you've opened |
 | `js/sounds.js` | Sound library, 10 s playback cap and synthesized effects — add a new sound to `SOUNDS` here |
 | `sounds/` | Recorded sound clips (MP3) |
