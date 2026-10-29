@@ -164,7 +164,7 @@ kbd {
   max-width: min(90vw, 420px);
 }
 
-#toast.show { opacity: 1; transform: translate(-50%, 0) scale(1); }
+#toast.show { opacity: 1; transform: translate(-50%, 0) scale(1); pointer-events: auto; }
 #toast.rare { border-color: var(--green); box-shadow: 0 0 50px rgba(57, 211, 83, 0.5); }
 
 .toast-emoji { font-size: 3rem; line-height: 1.1; }
@@ -172,6 +172,40 @@ kbd {
 .toast-name { font-family: 'Creepster', cursive; font-size: 1.8rem; letter-spacing: 0.04em; color: var(--orange); }
 #toast.rare .toast-name { color: var(--green); }
 .toast-quip { opacity: 0.85; margin-top: 2px; }
+
+/* ------------------------------------------------------------ rating stars */
+
+.rating {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stars { display: inline-flex; gap: 2px; }
+
+.star {
+  font-size: 1.9rem;
+  line-height: 1;
+  padding: 2px 4px;
+  color: rgba(246, 234, 216, 0.45);
+  background: none;
+  border: none;
+  border-radius: 6px;
+  backdrop-filter: none;
+}
+
+.star:hover { background: none; transform: scale(1.2); }
+.star.filled { color: var(--orange); text-shadow: 0 0 10px rgba(255, 122, 24, 0.7); }
+
+/* Hover preview: fill up to the hovered star, empty the rest. */
+.stars:hover .star { color: var(--orange); }
+.stars .star:hover ~ .star { color: rgba(246, 234, 216, 0.45); text-shadow: none; }
+
+.rating-label { font-size: 0.85rem; opacity: 0.75; margin-top: 2px; }
+.rating.voted .rating-label { opacity: 1; color: var(--orange); }
+.rating.voted .star.filled { animation: star-pop 0.35s ease-out; }
+
+@keyframes star-pop { 50% { transform: scale(1.45); } }
 
 @keyframes wobble {
   0% { transform: scale(0.3) rotate(-20deg); }

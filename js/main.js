@@ -53,13 +53,88 @@ function showToast(sound) {
   const quip = document.createElement('div');
   quip.className = 'toast-quip';
   quip.textContent = sound.quip;
-  toast.append(emoji, name, quip);
+  toast.append(emoji, name, quip, ratingView(sound));
   toast.classList.toggle('rare', !!sound.rare);
   toast.classList.remove('show');
   void toast.offsetWidth; // restart the animation
   toast.classList.add('show');
+  hideToastIn(6000);
+}
+
+function hideToastIn(ms) {
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), ms);
+}
+
+// Keep the toast open while the pointer is on it, so there's time to vote.
+toast.addEventListener('pointerenter', () => clearTimeout(toastTimer));
+toast.addEventListener('pointerleave', () => {
+  if (toast.classList.contains('show')) hideToastIn(2500);
+});
+
+// ---------------------------------------------------------------- rating
+
+const RATINGS_KEY = 'misophonia.ratings';
+
+function loadRatings() {
+  try {
+    return JSON.parse(localStorage.getItem(RATINGS_KEY)) || {};
+  } catch {
+    return {};
+  }
+}
+
+function saveRating(id, stars) {
+  const ratings = loadRatings();
+  ratings[id] = stars;
+  try {
+    localStorage.setItem(RATINGS_KEY, JSON.stringify(ratings));
+  } catch {
+    // Private mode or storage full: the vote is still sent to analytics.
+  }
+}
+
+/** Five stars for "how irritating was that?". */
+function ratingView(sound) {
+  const wrap = document.createElement('div');
+  wrap.className = 'rating';
+  const label = document.createElement('div');
+  label.className = 'rating-label';
+  const stars = document.createElement('div');
+  stars.className = 'stars';
+  stars.setAttribute('role', 'group');
+  stars.setAttribute('aria-label', 'Rate how irritating this sound is');
+
+  const previous = loadRatings()[sound.id] || 0;
+  const paint = (value) => {
+    [...stars.children].forEach((b, i) => {
+      const on = i < value;
+      b.classList.toggle('filled', on);
+      b.textContent = on ? '★' : '☆';
+      b.setAttribute('aria-pressed', String(i + 1 === value));
+    });
+    label.textContent = value
+      ? `Your rage level: ${value}/5 ${'😤'.repeat(Math.ceil(value / 2))}`
+      : 'How irritating was that?';
+  };
+
+  for (let i = 1; i <= 5; i++) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'star';
+    b.setAttribute('aria-label', `${i} of 5`);
+    b.addEventListener('click', () => {
+      saveRating(sound.id, i);
+      track('sound_rated', { sound_id: sound.id, sound_name: sound.name, rating: i });
+      paint(i);
+      wrap.classList.add('voted');
+      hideToastIn(1600);
+    });
+    stars.appendChild(b);
+  }
+  paint(previous);
+  wrap.append(stars, label);
+  return wrap;
 }
 
 function addHistory(sound) {

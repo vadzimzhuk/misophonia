@@ -46,6 +46,8 @@ The site will be live at `https://<you>.github.io/SpookySoundBox/`.
 
 Firebase Analytics (`js/analytics.js`) counts visits automatically (`page_view`, `session_start`) and logs a
 `candy_opened` event with `sound_id`, `sound_name` and `rare` for every unwrapped candy.
+The toast that pops up also has a 5-star "how irritating was that?" rating; each vote logs a `sound_rated`
+event with `sound_id`, `sound_name` and `rating` (1–5), and is remembered in `localStorage` for that browser.
 It's off on `localhost` so testing doesn't skew the numbers; open `http://localhost:8000/?analytics` to test it.
 If the SDK is blocked (ad blockers, offline), the app keeps working without it.
 
