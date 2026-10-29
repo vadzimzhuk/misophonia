@@ -51,7 +51,7 @@ The share message counts the candies you opened and names the sound you rated mo
 accepts a link, so the text is copied to the clipboard for pasting. On phones, **More…** opens the system share sheet.
 
 Link previews come from the Open Graph tags in `index.html` and `og-image.jpg`. They use the absolute URL
-`https://vadzimzhuk.github.io/misophonia/`, so update them if the site moves. After changing them, refresh the cached
+`https://misophonia.florque.com/`, so update them if the site moves. After changing them, refresh the cached
 preview with the [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/) and the
 [LinkedIn Post Inspector](https://www.linkedin.com/post-inspector/).
 
