@@ -3,11 +3,12 @@
 Trick or treat! A bowl of 13 identical mystery candies sits on a candle-lit table.
 Grab one, it unwraps with a pop… and plays a random sound you never wanted to hear on Halloween:
 
-📅 a hated meeting reminder · 📞 a work call · ⏰ the morning alarm · 🍴 a fork scraping a plate ·
-📳 a phone buzzing on the table · 🔔 a doorbell · 🚗 a car horn · 🦟 a mosquito by your ear ·
-🖨️ a printer jam · 📧 a new email · 🪫 low battery … and a rare 👻 **real ghost**.
+📅 a hated meeting reminder · ⏰ the morning alarm · 🍴 a fork squeaking on a plate · 🦟 a mosquito ·
+🖨️ a printer · 😋 loud chewing · 🍜 slurping · 😴 snoring · 🛠️ the neighbor's drill · 🚗 a car alarm ·
+🚨 a police siren · 🚪 a creaky door · 💨 a wet fart · 🤮 someone throwing up … and a rare 👻 **real ghost**.
 
-Most sounds are **synthesized live with the Web Audio API**; recorded clips live in `sounds/` and are preloaded on the first click.
+Sounds are recorded clips in `sounds/`, downloaded in the background on page load and capped at 10 seconds (longer clips fade out).
+The rare ghost and the unwrap/pop effects are **synthesized live with the Web Audio API**.
 The 3D scene uses [three.js](https://threejs.org) loaded from a CDN via an import map, so there's **no build step**.
 
 ## Controls
@@ -60,7 +61,7 @@ If the SDK is blocked (ad blockers, offline), the app keeps working without it.
 | `js/main.js` | Wires up the game, the view and the HUD |
 | `js/analytics.js` | Firebase Analytics setup and `track()` helper |
 | `js/game.js` | Deals a hidden sound to each candy and tracks what you've opened |
-| `js/sounds.js` | Sound library (synths + recorded files) — add a new sound to `SOUNDS` here |
+| `js/sounds.js` | Sound library, 10 s playback cap and synthesized effects — add a new sound to `SOUNDS` here |
 | `sounds/` | Recorded sound clips (MP3) |
 | `js/scene.js` | three.js scene: pumpkin bowl, candles, bats, picking and animations |
 | `js/candy.js` | Wrapped candy mesh factory |
@@ -75,8 +76,9 @@ entry to `SOUNDS` in `js/sounds.js`:
 { id: 'kettle', emoji: '🫖', name: 'Kettle whistle', quip: 'Tea time. Forever.', ...fromFile('sounds/kettle.mp3') },
 ```
 
-`fromFile(url, volume)` takes an optional volume (default `1`) to balance loud recordings against the rest.
+`fromFile(url, volume)` takes an optional volume (default `1`) to balance loud recordings against the rest;
+the current values bring each clip to roughly the same loudness (about -20 dBFS RMS).
 Only publish recordings you're allowed to share (your own, or CC0 from e.g. Freesound / Pixabay).
 
 **Synthesized:** write a function `(ctx, out) => { ... }` that schedules some Web Audio nodes into `out`
-and use `play: wrap(yourFunction)` in the entry instead.
+and use `play: wrap(yourFunction)` in the entry instead (see the ghost's `boo()`).
