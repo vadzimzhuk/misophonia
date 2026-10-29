@@ -42,6 +42,13 @@ git push -u origin main
 Then go to **Settings → Pages → Build and deployment → Deploy from a branch → `main` / `(root)`**.
 The site will be live at `https://<you>.github.io/SpookySoundBox/`.
 
+## Analytics
+
+Firebase Analytics (`js/analytics.js`) counts visits automatically (`page_view`, `session_start`) and logs a
+`candy_opened` event with `sound_id`, `sound_name` and `rare` for every unwrapped candy.
+It's off on `localhost` so testing doesn't skew the numbers; open `http://localhost:8000/?analytics` to test it.
+If the SDK is blocked (ad blockers, offline), the app keeps working without it.
+
 ## Project layout
 
 | File | What it does |
@@ -49,6 +56,7 @@ The site will be live at `https://<you>.github.io/SpookySoundBox/`.
 | `index.html` | Page shell, HUD and three.js import map |
 | `style.css` | Halloween theme, HUD, toast and fallback styles |
 | `js/main.js` | Wires up the game, the view and the HUD |
+| `js/analytics.js` | Firebase Analytics setup and `track()` helper |
 | `js/game.js` | Deals a hidden sound to each candy and tracks what you've opened |
 | `js/sounds.js` | Sound library (synths + recorded files) — add a new sound to `SOUNDS` here |
 | `sounds/` | Recorded sound clips (MP3) |

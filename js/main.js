@@ -1,3 +1,4 @@
+import { track } from './analytics.js';
 import { Game } from './game.js';
 import { audio, crinkle, pop, setMuted, isMuted } from './sounds.js';
 
@@ -35,6 +36,7 @@ function onPick(index) {
       showToast(sound);
       addHistory(sound);
       updateHud();
+      track('candy_opened', { sound_id: sound.id, sound_name: sound.name, rare: sound.rare ? 1 : 0 });
     },
   });
   if (ok) crinkle();
