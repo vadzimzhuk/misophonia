@@ -138,10 +138,22 @@ kbd {
 
 .hud-loot ol { margin: 0; padding-left: 1.3em; font-size: 0.9rem; }
 .hud-loot ol:empty::before { content: 'Nothing yet… go on, grab one.'; opacity: 0.6; margin-left: -1.3em; }
-.hud-loot li { padding: 2px 0; animation: slide-in 0.3s ease-out; }
+.hud-loot li { padding: 3px 0; }
 .hud-loot li.rare { color: var(--green); font-weight: 700; }
 
-@keyframes slide-in { from { opacity: 0; transform: translateX(12px); } }
+.loot-score {
+  float: right;
+  min-width: 1.7em;
+  margin-left: 8px;
+  padding: 0 6px;
+  border-radius: 999px;
+  text-align: center;
+  font-weight: 700;
+  color: #1a0800;
+  background: var(--orange);
+}
+
+.loot-score.unrated { color: var(--text); background: rgba(255, 255, 255, 0.1); font-weight: 400; opacity: 0.6; }
 
 /* ------------------------------------------------------------ toast */
 
@@ -202,10 +214,6 @@ kbd {
 .stars .star:hover ~ .star { color: rgba(246, 234, 216, 0.45); text-shadow: none; }
 
 .rating-label { font-size: 0.85rem; opacity: 0.75; margin-top: 2px; }
-.rating.voted .rating-label { opacity: 1; color: var(--orange); }
-.rating.voted .star.filled { animation: star-pop 0.35s ease-out; }
-
-@keyframes star-pop { 50% { transform: scale(1.45); } }
 
 @keyframes wobble {
   0% { transform: scale(0.3) rotate(-20deg); }

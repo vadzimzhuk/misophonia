@@ -34,7 +34,7 @@ function onPick(index) {
       pop();
       sound.play();
       showToast(sound);
-      addHistory(sound);
+      addToLoot(sound);
       updateHud();
       track('candy_opened', { sound_id: sound.id, sound_name: sound.name, rare: sound.rare ? 1 : 0 });
     },
@@ -127,8 +127,10 @@ function ratingView(sound) {
       saveRating(sound.id, i);
       track('sound_rated', { sound_id: sound.id, sound_name: sound.name, rating: i });
       paint(i);
-      wrap.classList.add('voted');
-      hideToastIn(1600);
+      b.blur(); // the toast is going away; give Space back to "grab a candy"
+      clearTimeout(toastTimer);
+      toast.classList.remove('show');
+      renderLoot();
     });
     stars.appendChild(b);
   }
@@ -137,12 +139,39 @@ function ratingView(sound) {
   return wrap;
 }
 
-function addHistory(sound) {
-  const li = document.createElement('li');
-  li.textContent = `${sound.emoji} ${sound.name}`;
-  if (sound.rare) li.className = 'rare';
-  history.prepend(li);
-  while (history.children.length > 13) history.lastChild.remove();
+// ---------------------------------------------------------------- loot list
+
+const loot = new Map(); // sound id -> { sound, count, last }
+let lootSeq = 0;
+
+function addToLoot(sound) {
+  const entry = loot.get(sound.id) ?? { sound, count: 0 };
+  entry.count++;
+  entry.last = ++lootSeq;
+  loot.set(sound.id, entry);
+  renderLoot();
+}
+
+/** One row per sound opened, ranked by your vote (unrated last, then most recent first). */
+function renderLoot() {
+  const ratings = loadRatings();
+  const rows = [...loot.values()]
+    .map((e) => ({ ...e, rating: ratings[e.sound.id] || 0 }))
+    .sort((a, b) => b.rating - a.rating || b.last - a.last);
+
+  history.replaceChildren(...rows.map(({ sound, count, rating }) => {
+    const li = document.createElement('li');
+    if (sound.rare) li.className = 'rare';
+    const name = document.createElement('span');
+    name.className = 'loot-name';
+    name.textContent = `${sound.emoji} ${sound.name}${count > 1 ? ` ×${count}` : ''}`;
+    const score = document.createElement('span');
+    score.className = rating ? 'loot-score' : 'loot-score unrated';
+    score.textContent = rating ? String(rating) : '–';
+    score.title = rating ? `Your rage level: ${rating}/5` : 'Not rated yet';
+    li.append(name, score);
+    return li;
+  }));
 }
 
 function updateHud() {
